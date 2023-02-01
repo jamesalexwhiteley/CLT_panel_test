@@ -32,10 +32,16 @@ def open_tr():
 
 	tr = tr.reshape((numrow, numcol))
 	time = tr[:,0]
-	load = tr[:,-1]
-	data = tr[:,1:numcol-1]
+	load = tr[:,1]
+	q1 = tr[:,2]
+	mid = tr[:,3]
+	q2 = tr[:,4]
 
-	print(tr)
+	# calibrate 
+	mid = 67.8124*mid+0.7634
+
+	return time, load, q1, mid, q2
+	
 
 def get_coords(t, scale=False):
 	''' extract xyz coordinate data '''
@@ -110,6 +116,19 @@ def plot_load_disp(xpts, ypts):
 	plt.savefig('2D_plot.png', format='png', dpi=1000, bbox_inches='tight', pad_inches = 0)
 	plt.show()
 
+def plot_two_load_disp(xpts1, ypts1, xpts2, ypts2):
+	''' plot 2D graph ''' 
+
+	step = 20
+	plt.plot(xpts1[1::step], ypts1[1::step])
+	step = 40
+	plt.plot(xpts2[1::step], ypts2[1::step])
+	plt.xlabel('Displacement (mm)')
+	plt.ylabel('Load (kN)')
+	plt.legend(('Transducer','LED'))
+	plt.savefig('2D_plot.png', format='png', dpi=1000, bbox_inches='tight', pad_inches = 0)
+	plt.show()
+
 def animate():
 	''' animate the displacement in time '''
 
@@ -147,21 +166,26 @@ data, time, load  = open_led()
 # animate()
 
 #==== plot 2D data ====#
-# xpts, ypts = get_load_disp(15, data, load) #index 16 (L/2)
+xpts, ypts = get_load_disp(15, data, load) #index 16 (L/2)
 # plot_load_disp(xpts, ypts)
 
-# xpts1, ypts = get_load_disp(2, data, load) #index 3  (L/4)
-# xpts2, ypts = get_load_disp(10, data, load) #index 11 (L/4)
-# xpts = (xpts1+xpts2)/2
+xpts1, ypts = get_load_disp(2, data, load) #index 3  (L/4)
+xpts2, ypts = get_load_disp(10, data, load) #index 11 (L/4)
+xpts = (xpts1+xpts2)/2
 # plot_load_disp(xpts, ypts)
 
-# xpts1, ypts = get_load_disp(28, data, load) #index 29  (L/4)
-# xpts2, ypts = get_load_disp(32, data, load) #index 33 (L/4)
-# xpts = (xpts1+xpts2)/2
+xpts1, ypts = get_load_disp(28, data, load) #index 29  (3L/4)
+xpts2, ypts = get_load_disp(32, data, load) #index 33 (3L/4)
+xpts = (xpts1+xpts2)/2
 # plot_load_disp(xpts, ypts)
 
 
 #==== TRANSDUCER DATA ====#
-open_tr()
+time, load2, q1, mid, q2 = open_tr()
+ypts = abs(mid-mid[0])
+# plot_load_disp(abs(mid-mid[0]), load2)
+
+xpts, ypts = get_load_disp(15, data, load) #index 16 (L/2)
+plot_two_load_disp(abs(mid-mid[0]), load2, xpts, ypts)
 
 
